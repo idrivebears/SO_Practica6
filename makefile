@@ -1,4 +1,5 @@
-all: server servers semaphores cliente
+all:
+	server servers semaphores cliente
 server:
 	gcc -o server server.c
 servers:

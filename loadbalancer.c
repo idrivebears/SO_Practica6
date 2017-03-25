@@ -1,22 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
-#include <sys/ipc.h>
-#include <sys/shm.h>
 
-#define MAXSERVERS 3
+#define MAXCLIENTS 3
 
-
-
-int main()
+int main(int argc, char *argv[])
 {
     int i;
     int pid;
     int status;
     char numserver[10];
-
-
     for(i=0;i<MAXSERVERS;i++)
     {
         pid=fork();
