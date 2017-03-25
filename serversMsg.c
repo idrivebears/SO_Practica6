@@ -38,7 +38,7 @@ int main()
         if(pid==0)
         {
             sprintf(numserver,"%d",i);
-            execlp("xterm", "xterm", "-e", "./server", numserver ,NULL);
+            execlp("xterm", "xterm", "-e", "./serverMsg", numserver ,NULL);
         }
     }
 

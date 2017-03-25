@@ -27,7 +27,6 @@ int main(int argc, char *argv[])
     key = ftok(".",'m');
 
     qid = msgget(key, IPC_CREAT | 0660);
-
     // Valida que reciba el argumento
 
     sent.mtype = 1;
