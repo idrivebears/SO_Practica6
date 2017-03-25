@@ -15,7 +15,7 @@ int main()
     int *sem_lb;
     int *available_printer;
     int sem_load_balance_id;
-    int printer_chosen;
+    int printer_chosen = 0;
 
     key_t key = ftok("semloadid", 1);
     int segment_id = shmget(key, sizeof(sem_lb), 0666);
@@ -35,13 +35,14 @@ int main()
     for(i = 0; i < 3; i++) {
         if(available_printer[i] == 1) {
             printer_chosen = i;
-            printf("Printer chosen: %d", printer_chosen);
+            printf("Printer chosen: %d\n", printer_chosen);
             break;
         }
     }
 
     sprintf(coladest, "fifo_%d", printer_chosen);
     printf("Trabajo a enviarse en %s\n", coladest);
+    printf("Trabajo a enviarse en %d\n", printer_chosen);
 
     // Abre el pipe del servidor 1 en modo de escritura
     fp = fopen(coladest, "w+");

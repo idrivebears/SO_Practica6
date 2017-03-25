@@ -63,8 +63,7 @@ int main(int argc, char *argv[])
     
     for (i = 0; i < 10; i++)
     {
-        available_printer[numserver] = 0;
-        printf("server vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
+        
         memset(buffer, 0, 10);
 
         // Abre el pipe fifo_n
@@ -74,8 +73,11 @@ int main(int argc, char *argv[])
         read(fp, buffer, sizeof(buffer));
 
         // Función que procesa al cliente
+        available_printer[numserver] = 0;
+        printf("server vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
         procesa(buffer);
         available_printer[numserver] = 1;
+        printf("server vals 2:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
         // Cierra el pipe
         close(fp);
         semsignal(sem_load_balance_id);
