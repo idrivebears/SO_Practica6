@@ -1,0 +1,4 @@
+todo
+    - crear pipe para compartir sem_load_balance a los clientes
+    - arreglar server.c para que wait y signal a sem_load_balance
+    - 
