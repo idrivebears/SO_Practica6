@@ -47,11 +47,9 @@ int main(int argc, char *argv[])
     //Conseguimos el ID de la memoria compartida.
     key = ftok("nextprint", 1);
     segment_id = shmget(key, sizeof(int)*3, 0666);
-    printf("server:%d\n", segment_id);
-    
     
     //Inicializamos la variable available printer en 0, la impresora 0 sera la primera. 
-    available_printer = shmat(segment_id, NULL, 0);
+    available_printer = (int *) shmat(segment_id, NULL, 0);
 
     // Inicializa la secuencia de números random
     srand((unsigned int)getpid());
@@ -77,10 +75,9 @@ int main(int argc, char *argv[])
 
         // Función que procesa al cliente
         procesa(buffer);
-        
+        available_printer[numserver] = 1;
         // Cierra el pipe
         close(fp);
-        available_printer[numserver] = 1;
         semsignal(sem_load_balance_id);
     }
 

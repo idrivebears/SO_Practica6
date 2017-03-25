@@ -38,13 +38,10 @@ int main()
     //Creamos clave para la memoria compartida que accesaran cada servidor y los clientes.
     key_t key = ftok("nextprint", 1);
     int segment_id = shmget(key, sizeof(int)*3, 0666 | IPC_CREAT);
-    printf("servers:%d\n", segment_id);
 
-    
-    
-    
     //Inicializamos la variable available printer en 0, la impresora 0 sera la primera. 
-    available_printer = shmat(segment_id, NULL, 0);
+    available_printer = (int *) shmat(segment_id, NULL, 0);
+
     available_printer[0] = 1;
     available_printer[1] = 1;
     available_printer[2] = 1;

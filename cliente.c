@@ -24,9 +24,8 @@ int main()
 
     key = ftok("nextprint", 1);
     segment_id = shmget(key, sizeof(int)*3, 0666);
-    printf("cliente:%d\n", segment_id);
 
-    available_printer = shmat(segment_id, NULL, 0);
+    available_printer = (int *) shmat(segment_id, NULL, 0);
 
     printf("cliente vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
 
