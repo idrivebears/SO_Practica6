@@ -2,6 +2,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h> // for open
+
+
 int numserver;
 
 void procesa(char *buffer);
