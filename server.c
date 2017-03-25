@@ -19,24 +19,30 @@ int main(int argc, char *argv[])
     }
     numserver = atoi(argv[1]);
     printf("Iniciando server %d\n", numserver);
+
     // Inicializa la secuencia de números random
     srand((unsigned int)getpid());
+
     // Nombra el fifo_n donde n es el número del servidor
     sprintf(namefifo, "fifo_%d", numserver);
+
     // Elimina y crea un nuevo pipe a través del cual recibe datos del cliente
-    
     unlink(namefifo);
     mkfifo(namefifo, 0644);
     
     for (i = 0; i < 10; i++)
     {
         memset(buffer, 0, 10);
+
         // Abre el pipe fifo_n
         fp = open(namefifo, 0);
+
         // Lee info del pipe
         read(fp, buffer, sizeof(buffer));
+
         // Función que procesa al cliente
         procesa(buffer);
+        
         // Cierra el pipe
         close(fp);
     }
