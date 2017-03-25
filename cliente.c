@@ -1,20 +1,47 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <sys/wait.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include "semaphores.h"
 
-int main(int argc, char *argv[])
+int main()
 {
     FILE *fp;
     char coladest[10];
+    int *sem_lb;
+    int *available_printer;
+    int sem_load_balance_id;
+    int printer_chosen;
 
-    // Valida que reciba el argumento
-    if (argc != 2)
-    {
-        perror("Error en los argumentos\n");
-        exit(EXIT_FAILURE);
+    key_t key = ftok("semloadid", 1);
+    int segment_id = shmget(key, sizeof(sem_lb), 0666);
+    sem_lb = shmat(segment_id, NULL, 0);
+    sem_load_balance_id = *sem_lb;
+
+    key = ftok("nextprint", 1);
+    segment_id = shmget(key, sizeof(int)*3, 0666);
+    printf("cliente:%d\n", segment_id);
+
+    available_printer = shmat(segment_id, NULL, 0);
+
+    printf("cliente vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
+
+    semwait(sem_load_balance_id);
+
+    int i = 0;
+    for(i = 0; i < 3; i++) {
+        if(available_printer[i] == 1) {
+            printer_chosen = i;
+            printf("Printer chosen: %d", printer_chosen);
+            break;
+        }
     }
 
-    sprintf(coladest, "fifo_%d", atoi(argv[1]));
+    sprintf(coladest, "fifo_%d", printer_chosen);
     printf("Trabajo a enviarse en %s\n", coladest);
 
     // Abre el pipe del servidor 1 en modo de escritura

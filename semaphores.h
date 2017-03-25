@@ -28,7 +28,7 @@ int createsem(int key, int value)
 {
 	int semid;
 	semid=semget(key,1,0666|IPC_CREAT); // Solicitar un arreglo de semáforos al SO
-	semctl(semid,0,SETVAL,value);	// Inicializar el semáforo en 1
+	semctl(semid,0,SETVAL,1);	// Inicializar el semáforo en 1
 	return(semid);
 }
 

@@ -1,5 +1,5 @@
 all:
-	server servers semaphores cliente
+	make server servers semaphores cliente
 server:
 	gcc -o server server.c
 servers:

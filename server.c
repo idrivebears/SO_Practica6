@@ -13,6 +13,7 @@
 #include <signal.h>
 #include <sys/types.h>
 #include <fcntl.h> // for open
+#include "semaphores.h"
 
 int numserver;
 
@@ -24,6 +25,7 @@ int main(int argc, char *argv[])
     int i;
     char buffer[10];
     char namefifo[10];
+
     if (argc != 2)
     {
         perror("Indica el número de servidor\n");
@@ -31,6 +33,25 @@ int main(int argc, char *argv[])
     }
     numserver = atoi(argv[1]);
     printf("Iniciando server %d\n", numserver);
+
+    int sem_load_balance_id;
+    int *sem_lb;
+
+    key_t key = ftok("semloadid", 1);
+    int segment_id = shmget(key, sizeof(sem_lb), 0666);
+    sem_lb = shmat(segment_id, NULL, 0);
+    sem_load_balance_id = *sem_lb;
+    
+    int *available_printer;
+
+    //Conseguimos el ID de la memoria compartida.
+    key = ftok("nextprint", 1);
+    segment_id = shmget(key, sizeof(int)*3, 0666);
+    printf("server:%d\n", segment_id);
+    
+    
+    //Inicializamos la variable available printer en 0, la impresora 0 sera la primera. 
+    available_printer = shmat(segment_id, NULL, 0);
 
     // Inicializa la secuencia de números random
     srand((unsigned int)getpid());
@@ -44,6 +65,8 @@ int main(int argc, char *argv[])
     
     for (i = 0; i < 10; i++)
     {
+        available_printer[numserver] = 0;
+        printf("server vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
         memset(buffer, 0, 10);
 
         // Abre el pipe fifo_n
@@ -57,7 +80,10 @@ int main(int argc, char *argv[])
         
         // Cierra el pipe
         close(fp);
+        available_printer[numserver] = 1;
+        semsignal(sem_load_balance_id);
     }
+
     exit(0);
 }
 

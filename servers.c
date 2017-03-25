@@ -9,6 +9,7 @@
 #include <string.h>
 #include <signal.h>
 #include <sys/types.h>
+#include <sys/stat.h>
 #include "semaphores.h"
 
 #define MAXSERVERS 3
@@ -20,29 +21,40 @@ int main()
     int status;
     char numserver[10];
 
-    char p_load_id[10];
-
     int *available_printer;
+    int *sem_lb;
     
     int sem_load_balance_id;
+    
+    
     sem_load_balance_id = createsem(0x1234,3);
-
+    
 	if(sem_load_balance_id==-1)
 	{
 		perror("Error en la creación del semáforo load_balance");
 		exit(1);
 	}
-
-    int segment_id = shmget(IPC_PRIVATE, sizeof(available_printer), S_IRUSR | S_IWUSR);
     
+    //Creamos clave para la memoria compartida que accesaran cada servidor y los clientes.
+    key_t key = ftok("nextprint", 1);
+    int segment_id = shmget(key, sizeof(int)*3, 0666 | IPC_CREAT);
+    printf("servers:%d\n", segment_id);
+
+    
+    
+    
+    //Inicializamos la variable available printer en 0, la impresora 0 sera la primera. 
     available_printer = shmat(segment_id, NULL, 0);
-    *available_printer = 0;
-
-
-    unlink(p_load_id);
-    mkfifo(p_load_id, 0644);
+    available_printer[0] = 1;
+    available_printer[1] = 1;
+    available_printer[2] = 1;
+    printf("servers vals:%d %d %d\n", available_printer[0],available_printer[1],available_printer[2]);
     
 
+    key = ftok("semloadid", 1);
+    segment_id = shmget(key, sizeof(sem_lb), S_IRUSR | S_IWUSR | IPC_CREAT);
+    sem_lb = shmat(segment_id, NULL, 0);
+    *sem_lb = sem_load_balance_id;
 
     for(i=0;i<MAXSERVERS;i++)
     {
@@ -50,11 +62,12 @@ int main()
         if(pid==0)
         {
             sprintf(numserver,"%d",i);
-            execlp("xterm", "xterm", "-e", "./server",
-            numserver,NULL);
+            execlp("xterm", "xterm", "-e", "./server", numserver,NULL);
         }
     }
 
     for(i=0;i<MAXSERVERS;i++)
         wait(&status);
+
+    erasesem(sem_load_balance_id);
 }
